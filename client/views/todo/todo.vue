@@ -37,7 +37,7 @@ import Helper from './helper.vue'
 
 export default {
   metaInfo: {
-    title: 'The Todo App'
+    title: 'Todo list'
   },
   beforeRouteEnter (to, from, next) {
     console.log('todo before enter', this)

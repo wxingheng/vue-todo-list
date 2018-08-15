@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:client": "cross-env NODE_ENV=production webpack --config build/webpack.config.client.js",
     "build:server": "cross-env NODE_ENV=production webpack --config build/webpack.config.server.js",
-    "build": "npm run clean && npm run build:client && npm run build:server && npm run upload",
+    "build": "npm run clean && npm run build:client && npm run build:server",
     "practice": "cross-env NODE_ENV=development webpack-dev-server --config build/webpack.config.practice.js",
     "clean": "rimraf public && rimraf server-build",
     "upload": "node build/upload.js",

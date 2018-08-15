@@ -75,7 +75,9 @@ if (isDev) {
     },
     output: {
       filename: '[name].[chunkhash:8].js',
-      publicPath: cdnConfig.host
+      // publicpath  打包输出的前缀
+      // publicPath: cdnConfig.host
+      publicPath: '/public/'
     },
     module: {
       rules: [

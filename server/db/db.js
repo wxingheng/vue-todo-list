@@ -1,11 +1,11 @@
-const sha1 = require('sha1')
-const axios = require('axios')
+// const sha1 = require('sha1')
+// const axios = require('axios')
 
-const className = 'todo'
+// const className = 'todo'
 
-const request = axios.create({
-  baseURL: 'https://d.apicloud.com/mcm/api'
-})
+// const request = axios.create({
+//   baseURL: 'https://d.apicloud.com/mcm/api'
+// })
 
 const MongoClient = require('mongodb').MongoClient
 const url = 'mongodb://176.122.181.47:27017/todolist'
@@ -29,13 +29,13 @@ const handleRequest = ({
 }
 
 module.exports = (appId, appKey) => {
-  const getHeaders = () => {
-    const now = Date.now()
-    return {
-      'X-APICloud-AppId': appId,
-      'X-APICloud-AppKey': `${sha1(`${appId}UZ${appKey}UZ${now}`)}.${now}`
-    }
-  }
+  // const getHeaders = () => {
+  //   const now = Date.now()
+  //   return {
+  //     'X-APICloud-AppId': appId,
+  //     'X-APICloud-AppKey': `${sha1(`${appId}UZ${appKey}UZ${now}`)}.${now}`
+  //   }
+  // }
   return {
     async getAllTodos () {
       return handleRequest(await new Promise(resolve => {
@@ -43,9 +43,10 @@ module.exports = (appId, appKey) => {
           if (err) throw err
           const dbo = db.db('todolist')
           dbo.collection('datas').find({}).toArray((err, result) => {
-            if (err) { throw err }
+            if (err) {
+              throw err
+            }
             db.close()
-            console.log(result)
             resolve({
               status: 200,
               data: result
@@ -68,8 +69,12 @@ module.exports = (appId, appKey) => {
         MongoClient.connect(url, (err, db) => {
           if (err) throw err
           const dbo = db.db('todolist')
-          dbo.collection('datas').insertOne(todo, (err, res) => {
-            if (err) { throw err }
+          dbo.collection('datas').insertOne({ ...todo,
+            id: new Date().getTime().toString()
+          }, (err, res) => {
+            if (err) {
+              throw err
+            }
             db.close()
             resolve({
               status: 200,
@@ -78,49 +83,101 @@ module.exports = (appId, appKey) => {
           })
         })
       }))
-      // const Model = mongoose.model('data', Schema)
-      // let apple = new Model(todo)
-      // // 存放数据
-      // return handleRequest(await new Promise((resolve) => {
-      //   apple.save((err, apple) => {
-      //     if (err) return console.log(err)
-      //     apple.eat()
-      //     resolve({
-      //       status: 200,
-      //       data: apple
-      //     })
-      //   })
-      // }))
     },
     async updateTodo (id, todo) {
-      return handleRequest(await request.put(
-        `/${className}/${id}`,
-        todo, {
-          headers: getHeaders()
-        }
-      ))
+      // return handleRequest(await request.put(
+      //   `/${className}/${id}`,
+      //   todo, {
+      //     headers: getHeaders()
+      //   }
+      // ))
+      return handleRequest(await new Promise(resolve => {
+        MongoClient.connect(url, (err, db) => {
+          if (err) throw err
+          const dbo = db.db('todolist')
+          const whereStr = {
+            'id': id
+          }
+          const updateStr = {
+            $set: {
+              completed: todo.completed
+            }
+          }
+          dbo.collection('datas').update(whereStr, updateStr, (err, res) => {
+            if (err) {
+              throw err
+            }
+            db.close()
+            resolve({
+              status: 200,
+              data: todo
+            })
+          })
+        })
+      }))
     },
     async deleteTodo (id) {
-      return handleRequest(await request.delete(
-        `/${className}/${id}`, {
-          headers: getHeaders()
-        }
-      ))
+      // return handleRequest(await request.delete(
+      //   `/${className}/${id}`, {
+      //     headers: getHeaders()
+      //   }
+      // ))
+      return handleRequest(await new Promise(resolve => {
+        MongoClient.connect(url, (err, db) => {
+          if (err) throw err
+          const dbo = db.db('todolist')
+          const whereStr = {
+            'id': id
+          }
+          dbo.collection('datas').deleteOne(whereStr, (err, res) => {
+            if (err) {
+              throw err
+            }
+            db.close()
+            resolve({
+              status: 200
+            })
+          })
+        })
+      }))
     },
     async deleteCompleted (ids) {
-      const requests = ids.map(id => {
-        return {
-          method: 'DELETE',
-          path: `/mcm/api/${className}/${id}`
-        }
-      })
-      return handleRequest(await request.post(
-        '/batch', {
-          requests
-        }, {
-          headers: getHeaders()
-        }
-      ))
+      console.log('ids:-->', ids)
+      // const requests = ids.map(id => {
+      //   return {
+      //     method: 'DELETE',
+      //     path: `/mcm/api/${className}/${id}`
+      //   }
+      // })
+      // return handleRequest(await request.post(
+      //   '/batch', {
+      //     requests
+      //   }, {
+      //     headers: getHeaders()
+      //   }
+      // ))
+      return handleRequest(await new Promise(resolve => {
+        MongoClient.connect(url, (err, db) => {
+          if (err) throw err
+          const dbo = db.db('todolist')
+          ids.map(d => {
+            return new Promise(resolve => {
+              dbo.collection('datas').deleteOne({id: d}, (err, res) => {
+                if (err) {
+                  throw err
+                }
+                return resolve()
+              })
+            })
+          })
+          Promise.all(ids).then(d => {
+            db.close()
+            resolve({
+              status: 200
+            })
+          })
+        })
+      }))
     }
   }
 }

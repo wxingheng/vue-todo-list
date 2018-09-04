@@ -29,6 +29,7 @@
     "koa-router": "^7.4.0",
     "koa-send": "^4.1.2",
     "koa-session": "^5.8.1",
+    "mongoose": "^5.2.12",
     "sha1": "^1.1.1",
     "vue": "2.5.13",
     "vue-meta": "^1.4.3",

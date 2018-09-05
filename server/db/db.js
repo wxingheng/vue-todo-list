@@ -8,7 +8,8 @@
 // })
 
 const MongoClient = require('mongodb').MongoClient
-const url = 'mongodb://176.122.181.47:27017/todolist'
+const url = 'mongodb://Wuxh:Zxc940927@176.122.181.47:27017/todolist'
+// mongodb://simpleUser:simplePass@your.db.ip.address:27017/foo
 
 const createError = (code, resp) => {
   const err = new Error(resp.message)
